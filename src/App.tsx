@@ -6,6 +6,7 @@ import { Button } from "./components/ui/button";
 import { useState } from "react";
 
 import createWallet from "./components/use-wallet.js"
+import TruncateEthAddressFromMid from "./components/utils/truncateAddress.js"
 
 // import SeedDialogPhrase  from "./components/SeedDialogPhrase";
 import SeedGrid from "./components/SeedGrid";
@@ -16,7 +17,7 @@ window.Buffer = buffer.Buffer;
 function App() {
   const [mnemonics, setMnemonics] = useState([]);
   const [seed, setSeed] = useState("");
-  const [wallet, setWallet] = useState({solana: {currentIndex:0}, eth: {currentIndex:0}, btc:{currentIndex:0}});
+  const [wallet, setWallet] = useState({solana: {currentIndex:0, publicKey: "",secretKey:""}, eth: {currentIndex:0,publicKey: "",secretKey:""}, btc:{currentIndex:0,publicKey: "",secretKey:""}});
 
 
   const handleClick = () => {
@@ -27,6 +28,7 @@ function App() {
 
    
     setSeed(newSeed.toString("hex"));
+
    
 
     setMnemonics(phrase.split(" "));
@@ -34,11 +36,15 @@ function App() {
   };
 
   const handleWallet = (seedPhrase) => {
-    let newWallet = {solana:{currentIndex:wallet.solana.currentIndex+=1},eth:{currentIndex:wallet.eth.currentIndex+=1},btc:{currentIndex:wallet.btc.currentIndex+=1}}
-    setWallet(newWallet);
+    let newWallet = {solana:{currentIndex:wallet.solana.currentIndex+=1,publicKey: "", secretKey: ""},eth:{currentIndex:wallet.eth.currentIndex+=1,publicKey: "", secretKey: ""},btc:{currentIndex:wallet.btc.currentIndex+=1,publicKey: "", secretKey: ""}}
+ 
    
     
-    createWallet(newWallet,seedPhrase)
+     const walletInfo = createWallet(newWallet,seedPhrase)
+    newWallet.solana.publicKey = walletInfo.solana.publicKey
+    newWallet.solana.secretKey = walletInfo.solana.secretKey
+    setWallet(newWallet)
+   console.log(wallet)
   
   };
   return (
@@ -71,24 +77,24 @@ function App() {
           <div className="h-1 bg-green-500 mb-4"></div>
 
           <div className="flex justify-between mb-4">
-            <button
-              onClick={() => handleWallet("sol")}
+            <div
+           
               className="w-1/4 bg-gray-700 h-8 rounded flex justify-center p-1 text-white"
             >
               sol
-            </button>
-            <button
-              onClick={() => handleWallet("btc")}
+            </div>
+            <div
+             
               className="w-1/4 bg-gray-700 h-8 rounded flex justify-center p-1 text-white"
             >
               btc
-            </button>
-            <button
-              onClick={() => handleWallet("eth")}
+            </div>
+            <div
+              
               className="w-1/4 bg-gray-700 h-8 rounded flex justify-center p-1 text-white"
             >
               eth
-            </button>
+            </div>
           </div>
 
           <div className="flex justify-between">
@@ -97,9 +103,17 @@ function App() {
                
                 className="w-[25%] bg-gray-700 rounded p-4 text-white"
               >
-                <p className="mb-2">private</p>
-                <p className="mb-2">pubublic</p>
-                <p>seed</p>
+
+                 {Object.keys(wallet.solana).map((key)=> { 
+                 
+                  return  <>
+                <p className="mb-2 overflow-hidden">{wallet.solana[key] ? TruncateEthAddressFromMid(wallet.solana[key]):0}</p>
+                
+                </>
+               
+              })}
+              
+                
               </div>
           
               <div
@@ -108,16 +122,19 @@ function App() {
               >
                 <p className="mb-2">private</p>
                 <p className="mb-2">pubublic</p>
-                <p>seed</p>
+                
+                
+                {/* <p className="mb-2">pubublic</p>
+                 */}
               </div>
           
               <div
                
                 className="w-[25%] bg-gray-700 rounded p-4 text-white"
               >
-                <p className="mb-2">private</p>
-                <p className="mb-2">pubublic</p>
-                <p>seed</p>
+                <p className="mb-2 overflow-hidden">private</p>
+                <p className="mb-2 overflow-hidden">public</p>
+                
               </div>
           
           </div>

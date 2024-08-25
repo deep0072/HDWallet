@@ -14,7 +14,7 @@ const SeedGrid = ({words}) => {
   <Accordion type="single" collapsible>
   <AccordionItem value="item-1">
     
-    <AccordionTrigger className="flex justify-center text-white">Is it accessible?</AccordionTrigger>
+    <AccordionTrigger className="flex justify-center text-white">show seed phrase</AccordionTrigger>
     <AccordionContent>
     
       <div className="grid grid-cols-3 gap-4 blur-lg  hover:blur-none brightness-150">
