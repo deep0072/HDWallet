@@ -1,96 +1,79 @@
-import { generateMnemonic, mnemonicToSeedSync } from 'bip39'
-import { derivePath } from 'ed25519-hd-key'
-import { Keypair } from '@solana/web3.js'
-import nacl from 'tweetnacl'
-import bs58 from 'bs58'
-import { Wallet, HDNodeWallet } from 'ethers'
-import * as buffer from 'buffer'
-import HDKey from 'hdkey'
-
-import * as btc from '@scure/btc-signer'
-import CoinKey from 'coinkey'
-
-window.Buffer = buffer.Buffer
-
+import { derivePath } from 'ed25519-hd-key';
+import { Keypair } from '@solana/web3.js';
+import nacl from 'tweetnacl';
+import bs58 from 'bs58';
+import { Wallet, HDNodeWallet } from 'ethers';
+import * as buffer from 'buffer';
+import CoinKey from 'coinkey';
+window.Buffer = buffer.Buffer;
 export default function createWallet(wallet, seed) {
-  let coinType
-  if (wallet.solana) {
-    coinType = "501'"
-  } else if (wallet.btc) {
-    coinType = "0'"
-  } else if (wallet.eth) {
-    coinType = "60'"
-  }
-
-  let neWallet = new Object()
-
-  for (let key in wallet) {
+    const neWallet = {
+        solana: {
+            currentIndex: 0,
+            secretKey: "",
+            publicKey: ""
+        },
+        btc: {
+            currentIndex: 0,
+            secretKey: "",
+            publicKey: ""
+        },
+        eth: {
+            currentIndex: 0,
+            secretKey: "",
+            publicKey: ""
+        }
+    };
     if (wallet.solana) {
-      const path = `m/44'/501'/${wallet.solana.currentIndex}'/0'`
-      neWallet.solana = neWallet.solana || {}
-      const { publicKey, secretKey } = createSolanaWallet(seed, path)
-
-      neWallet.solana.publicKey = publicKey
-      neWallet.solana.secretKey = secretKey
+        const path = `m/44'/501'/${wallet.solana.currentIndex}'/0'`;
+        neWallet.solana = neWallet.solana || {};
+        const { publicKey, secretKey } = createSolanaWallet(seed, path);
+        neWallet.solana.publicKey = publicKey;
+        neWallet.solana.secretKey = secretKey;
     }
     // if (wallet.btc){
     //     const path = `m/44'/0'/${wallet.btc.currentIndex}'/0'`;
     //     const [publicKey, secretKey] = createaBtcWallet(seed,path)}
-
     if (wallet.eth) {
-      console.log('creating eth wallet............')
-      neWallet.eth = neWallet.eth || {}
-      const path = `m/44'/60'/${wallet.eth.currentIndex}'/0'`
-
-      const { publicKey, secretKey } = createEthWallet(seed, path)
-
-      neWallet.eth.publicKey = publicKey
-      neWallet.eth.secretKey = secretKey
+        console.log('creating eth wallet............');
+        neWallet.eth = neWallet.eth || {};
+        const path = `m/44'/60'/${wallet.eth.currentIndex}'/0'`;
+        const { publicKey, secretKey } = createEthWallet(seed, path);
+        neWallet.eth.publicKey = publicKey;
+        neWallet.eth.secretKey = secretKey;
     }
-
     if (wallet.btc) {
-      console.log('creating eth wallet............')
-      neWallet.btc = neWallet.btc || {}
-      const path = `m/44'/0'/${wallet.btc.currentIndex}'/0'`
-
-      const { publicKey, secretKey } = createBtcWallet(seed, path)
-
-      neWallet.btc.publicKey = publicKey
-      neWallet.btc.secretKey = secretKey
+        console.log('creating eth wallet............');
+        neWallet.btc = neWallet.btc || {};
+        const { publicKey, secretKey } = createBtcWallet(seed);
+        neWallet.btc.publicKey = publicKey;
+        neWallet.btc.secretKey = secretKey;
     }
-  }
-
-  // }else if (wallet.btc){
-  //     //create btc wallet
-  //     const path = `m/44'/0'/0'/${wallet.btc.currentIndex}'`;
-  // }else if (wallet.eth){
-  //     // create eth wallet
-  //     const path = `m/44'/60'/0'/${wallet.btc.currentIndex}'`;
-  // // }
-  return neWallet
+    // }else if (wallet.btc){
+    //     //create btc wallet
+    //     const path = `m/44'/0'/0'/${wallet.btc.currentIndex}'`;
+    // }else if (wallet.eth){
+    //     // create eth wallet
+    //     const path = `m/44'/60'/0'/${wallet.btc.currentIndex}'`;
+    // // }
+    return neWallet;
 }
-
-function createBtcWallet(seed, path) {
-  let ck = new CoinKey.createRandom(Buffer.from(seed, 'hex'))
-
-  return { publicKey: ck.publicAddress, secretKey: ck.privateKey.toString('hex') }
+function createBtcWallet(seed) {
+    const ck = new CoinKey.createRandom(seed, 'hex');
+    return { publicKey: ck.publicAddress, secretKey: ck.privateKey.toString('hex') };
 }
-
 function createSolanaWallet(seed, path) {
-  const derivedSeed = derivePath(path, seed.toString('hex')).key
-
-  let secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey
-  const publicKey = Keypair.fromSecretKey(secret).publicKey.toBase58()
-  let secretKey = bs58.encode(secret)
-
-  return { publicKey: publicKey, secretKey: secretKey }
+    const derivedSeed = derivePath(path, seed.toString('hex')).key;
+    const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
+    const publicKey = Keypair.fromSecretKey(secret).publicKey.toBase58();
+    const secretKey = bs58.encode(secret);
+    return { publicKey: publicKey, secretKey: secretKey };
 }
 function createEthWallet(seed, path) {
-  const hdNode = HDNodeWallet.fromSeed(seed)
-  const child = hdNode.derivePath(path)
-  const privateKey = child.privateKey
-  const wallet = new Wallet(privateKey)
-  const publicKey = wallet.address
-
-  return { publicKey: publicKey, secretKey: privateKey }
+    const hdNode = HDNodeWallet.fromSeed(seed);
+    const child = hdNode.derivePath(path);
+    const privateKey = child.privateKey;
+    const wallet = new Wallet(privateKey);
+    const publicKey = wallet.address;
+    return { publicKey: publicKey, secretKey: privateKey };
 }

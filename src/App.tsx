@@ -1,23 +1,23 @@
-import React from 'react'
+
 import './App.css'
 
 import { Button } from './components/ui/button'
 
 import { useState } from 'react'
 
-import createWallet from './components/use-wallet.js'
-import TruncateEthAddressFromMid from './components/utils/truncateAddress.js'
+import createWallet from './components/use-wallet'
+// import TruncateEthAddressFromMid from './components/utils/truncateAddress.js'
 
 // import SeedDialogPhrase  from "./components/SeedDialogPhrase";
 import SeedGrid from './components/SeedGrid'
 import { generateMnemonic, mnemonicToSeedSync } from 'bip39'
 import * as buffer from 'buffer'
-import FullTextCard from './components/FullTextCard.jsx'
+import FullTextCard from './components/FullTextCard'
 window.Buffer = buffer.Buffer
 
 function App() {
-  const [mnemonics, setMnemonics] = useState([])
-  const [isHovered, setIsHovered] = useState(false)
+  const [mnemonics, setMnemonics] = useState<string[]>([])
+
   const [seed, setSeed] = useState('')
   const [wallet, setWallet] = useState({
     solana: { currentIndex: 0, publicKey: '', secretKey: '' },
@@ -26,9 +26,9 @@ function App() {
   })
 
   const handleClick = () => {
-    let phrase = generateMnemonic()
+    const phrase= generateMnemonic()
 
-    let newSeed = mnemonicToSeedSync(phrase)
+    const newSeed = mnemonicToSeedSync(phrase)
 
     setSeed(newSeed.toString('hex'))
 
@@ -36,7 +36,7 @@ function App() {
     handleWallet(newSeed)
   }
 
-  const handleWallet = seedPhrase => {
+  const handleWallet = (seedPhrase:Buffer) => {
     const newWallet = {
       solana: { currentIndex: (wallet.solana.currentIndex += 1), publicKey: '', secretKey: '' },
       eth: { currentIndex: (wallet.eth.currentIndex += 1), publicKey: '', secretKey: '' },
@@ -54,9 +54,7 @@ function App() {
     setWallet(newWallet)
   }
 
-  const handleMouseEnter = () => {
-    setIsHovered(true)
-  }
+  
   return (
     <div className="bg-gray-900 p-2">
       <div className="flex justify-center mt-3">
@@ -84,7 +82,7 @@ function App() {
 
           <div className="text-center mb-2">{seed && <SeedGrid words={mnemonics} />}</div>
 
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-between mb-4 mt-4">
             <div className="w-1/4 animate-pulse border border-purple-500 border-opacity-100 opacity-100  bg-gray-700 h-8 rounded flex justify-center p-1 bg-gradient-to-r from-orange-500 via-purple-400 to-purple-100  bg-clip-text text-transparent text-lg font-semibold">
               sol
             </div>

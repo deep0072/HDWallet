@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 
-import { Input } from '@/components/ui/input'
-export default function FullTextCard({ id, wallet }) {
+
+export default function FullTextCard({ id, wallet }: {id: string, wallet: string}) {
   console.log(wallet, 'wallet')
   return (
     <HoverCard>

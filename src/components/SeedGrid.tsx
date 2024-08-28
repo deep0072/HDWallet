@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-const SeedGrid = ({ words }) => {
+const SeedGrid = ( { words }: { words: string[] }) => {
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
